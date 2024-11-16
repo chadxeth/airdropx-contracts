@@ -4,8 +4,9 @@ pragma solidity ^0.8.19;
 import "./interfaces/IAirdropManager.sol";
 import "./interfaces/ICriteriaLogic.sol";
 import "openzeppelin-contracts/token/ERC20/IERC20.sol";
+import {VennFirewallConsumer} from "@ironblocks/firewall-consumer/contracts/consumers/VennFirewallConsumer.sol";
 
-contract AirdropManager is IAirdropManager {
+contract AirdropManager is IAirdropManager, VennFirewallConsumer {
     uint256 private campaignCounter;
     mapping(uint256 => Campaign) private campaigns;
     mapping(uint256 => mapping(address => bool)) private hasClaimed;
@@ -17,7 +18,7 @@ contract AirdropManager is IAirdropManager {
         uint256 startTime,
         uint256 endTime,
         address criteriaLogic
-    ) external override returns (uint256) {
+    ) external firewallProtected override returns (uint256) {
         require(endTime > startTime, "Invalid campaign duration");
 
         IERC20(rewardToken).transferFrom(msg.sender, address(this), totalRewards);
@@ -38,7 +39,7 @@ contract AirdropManager is IAirdropManager {
         return campaignCounter;
     }
 
-    function claimReward(uint256 campaignId) external override {
+    function claimReward(uint256 campaignId) external firewallProtected override {
         Campaign storage campaign = campaigns[campaignId];
         require(block.timestamp >= campaign.startTime, "Campaign not started");
         require(block.timestamp <= campaign.endTime, "Campaign ended");
@@ -58,7 +59,7 @@ contract AirdropManager is IAirdropManager {
         return campaigns[campaignId];
     }
 
-    function withdrawUnusedRewards(uint256 campaignId) external override {
+    function withdrawUnusedRewards(uint256 campaignId) external firewallProtected override {
         Campaign storage campaign = campaigns[campaignId];
         require(msg.sender == campaign.creator, "Not creator");
         require(block.timestamp > campaign.endTime, "Campaign still active");
