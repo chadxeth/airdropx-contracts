@@ -1,4 +1,4 @@
- // SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import {Script} from "forge-std/Script.sol";
@@ -8,6 +8,7 @@ import {LiquidityBasedEligibility} from "../src/eligibility/LiquidityBasedEligbi
 import {VLayerEligibility} from "../src/eligibility/VLayerEligibility.sol";
 import {AverageBalance} from "../src/vlayer/AverageBalance.sol";
 import {IERC20} from "openzeppelin-contracts/token/ERC20/IERC20.sol";
+import {VennFirewallConsumer} from "onchain-firewall/packages/firewall-consumer/contracts/consumers/VennFirewallConsumer.sol";
 import "forge-std/console.sol";
 
 contract DeployScript is Script {
@@ -23,20 +24,28 @@ contract DeployScript is Script {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
-        // 1. Deploy LiquidityBasedEligibility
-        LiquidityBasedEligibility liquidityEligibility = new LiquidityBasedEligibility(
-        );
-        // 1. Deploy TestProtocol
+        address firewallAddress = 0x04f3B196E30e6F78174EF95a612E1f85A3B4110C;
+        // 1. Deploy Firewall first
+        VennFirewallConsumer firewall = new VennFirewallConsumer();
+        console.log("VennFirewallConsumer deployed at:", address(firewall));
+        firewall.setFirewall(firewallAddress);
+        firewall.setAttestationCenterProxy(firewallAddress);
+        // 2. Deploy LiquidityBasedEligibility
+        LiquidityBasedEligibility liquidityEligibility = new LiquidityBasedEligibility();
+        
+        // 3. Deploy TestProtocol
         TestProtocol protocol = new TestProtocol(USDC, WETH, address(liquidityEligibility));
         console.log("TestProtocol deployed at:", address(protocol));
 
-        // 2. Deploy AirdropManager
+        // 4. Deploy AirdropManager with Firewall
         AirdropManager airdropManager = new AirdropManager();
+        airdropManager.setFirewall(firewallAddress);
+        airdropManager.setAttestationCenterProxy(firewallAddress);
         console.log("AirdropManager deployed at:", address(airdropManager));
 
         console.log("LiquidityBasedEligibility deployed at:", address(liquidityEligibility));
 
-        // 4. Deploy VLayer contracts
+        // 5. Deploy VLayer contracts
         AverageBalance averageBalanceProver = new AverageBalance(
             IERC20(USDC),
             START_BLOCK,
@@ -45,7 +54,7 @@ contract DeployScript is Script {
         );
         console.log("AverageBalance prover deployed at:", address(averageBalanceProver));
 
-        // 5. Deploy VLayerEligibility
+        // 6. Deploy VLayerEligibility
         VLayerEligibility vlayerEligibility = new VLayerEligibility(
             address(protocol),
             address(averageBalanceProver),
