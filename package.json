@@ -1,0 +1,7 @@
+{
+  "devDependencies": {
+    "@vennbuild/venn-dapp-sdk": "^0.8.5",
+    "dotenv": "^16.4.5",
+    "viem": "^2.21.45"
+  }
+}
