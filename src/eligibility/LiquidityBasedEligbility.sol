@@ -1,10 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "./interfaces/ICriteriaLogic.sol";
+import "../interfaces/ICriteriaLogic.sol";
+import {IERC20} from "openzeppelin-contracts/token/ERC20/IERC20.sol";
+import "forge-std/console.sol";
+interface ITestProtocol {
+    function token0() external view returns (address);
+    function token1() external view returns (address);
+}
 
 contract LiquidityBasedEligibility is ICriteriaLogic {
-    address public implementation;
     
     // Mapping to track historical liquidity additions
     mapping(address => uint256) public liquidityAdditions;
@@ -15,8 +20,7 @@ contract LiquidityBasedEligibility is ICriteriaLogic {
     uint256 constant TIER3_THRESHOLD = 10; // 600 tokens
     uint256 constant TIER4_THRESHOLD = 20; // 1000 tokens
     
-    constructor(address _implementation) {
-        implementation = _implementation;
+    constructor() {
     }
     
     function calculateReward(address user) external view override returns (uint256) {
@@ -44,21 +48,8 @@ contract LiquidityBasedEligibility is ICriteriaLogic {
         }
     }
 
-    fallback() external payable {
-        // Forward call to ContractA
-        (bool success, bytes memory result) = implementation.call{value: msg.value}(msg.data);
-        // Require success
-        require(success, "Call to implementation failed");
-        // Increment liquidity additions
-        liquidityAdditions[msg.sender] += 1;
-
-        // Return the result back to the caller
-        assembly {
-            return(add(result, 0x20), mload(result))
-        }
+    function recordInteraction(address user) external {
+        liquidityAdditions[user] += 1;
     }
-
-    // Allow the proxy to receive Ether
-    receive() external payable {}
     
 }

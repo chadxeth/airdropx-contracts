@@ -2,8 +2,8 @@
 pragma solidity ^0.8.20;
 
 import "openzeppelin-contracts/token/ERC20/IERC20.sol";
-
-contract TestProtocol {
+import "./AirdropX.sol";
+contract TestProtocol is AirdropX {
     // Token pair for the pool
     IERC20 public token0;
     IERC20 public token1;
@@ -16,17 +16,16 @@ contract TestProtocol {
     uint256 public totalLiquidity;
     mapping(address => uint256) public liquidity;
     
-    constructor(address _token0, address _token1) {
+    constructor(address _token0, address _token1, address _criteriaLogic) AirdropX(_criteriaLogic) {
         token0 = IERC20(_token0);
         token1 = IERC20(_token1);
     }
     
     // Add liquidity to the pool
-    function addLiquidity(uint256 amount0, uint256 amount1) external returns (uint256 liquidityMinted) {
-        // Transfer tokens to the contract
+    function addLiquidity(uint256 amount0, uint256 amount1) external recordInteraction returns (uint256 liquidityMinted) {
         token0.transferFrom(msg.sender, address(this), amount0);
         token1.transferFrom(msg.sender, address(this), amount1);
-        
+       
         // Calculate liquidity tokens to mint
         if (totalLiquidity == 0) {
             liquidityMinted = Math.sqrt(amount0 * amount1);
@@ -36,7 +35,7 @@ contract TestProtocol {
                 (amount1 * totalLiquidity) / reserve1
             );
         }
-        
+     
         require(liquidityMinted > 0, "Insufficient liquidity minted");
         
         // Update reserves and liquidity
@@ -49,7 +48,7 @@ contract TestProtocol {
     }
     
     // Perform a swap
-    function swap(address tokenIn, uint256 amountIn) external returns (uint256 amountOut) {
+    function swap(address tokenIn, uint256 amountIn) external recordInteraction returns (uint256 amountOut) {
         require(tokenIn == address(token0) || tokenIn == address(token1), "Invalid token");
         require(amountIn > 0, "Invalid amount");
         
@@ -81,7 +80,7 @@ contract TestProtocol {
     }
     
     // Remove liquidity from the pool
-    function removeLiquidity(uint256 liquidityAmount) external returns (uint256 amount0, uint256 amount1) {
+    function removeLiquidity(uint256 liquidityAmount) external recordInteraction returns (uint256 amount0, uint256 amount1) {
         require(liquidity[msg.sender] >= liquidityAmount, "Insufficient liquidity");
         
         // Calculate token amounts to return
