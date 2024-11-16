@@ -1,0 +1,3 @@
+[submodule "dependencies/onchain-firewall"]
+	path = dependencies/onchain-firewall
+	url = https://github.com/ironblocks/onchain-firewall

@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 import "./interfaces/IAirdropManager.sol";
 import "./interfaces/ICriteriaLogic.sol";
 import "openzeppelin-contracts/token/ERC20/IERC20.sol";
-import {VennFirewallConsumer} from "@ironblocks/firewall-consumer/contracts/consumers/VennFirewallConsumer.sol";
+import {VennFirewallConsumer} from "onchain-firewall/packages/firewall-consumer/contracts/consumers/VennFirewallConsumer.sol";
 
 contract AirdropManager is IAirdropManager, VennFirewallConsumer {
     uint256 private campaignCounter;
