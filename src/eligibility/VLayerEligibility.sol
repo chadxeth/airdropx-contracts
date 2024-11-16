@@ -5,6 +5,7 @@ import "../interfaces/ICriteriaLogic.sol";
 import {Proof} from "vlayer-0.1.0/Proof.sol";
 import {Verifier} from "vlayer-0.1.0/Verifier.sol";
 import {IERC20} from "openzeppelin-contracts/token/ERC20/IERC20.sol";
+import "forge-std/console.sol";
 
 contract VLayerEligibility is ICriteriaLogic, Verifier {
     address public implementation;

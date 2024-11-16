@@ -2,6 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "forge-std/Test.sol";
+import "vlayer-0.1.0/testing/VTest.sol";
 import "../src/TestProtocol.sol";
 import "../src/AirdropManager.sol";
 import "../src/eligibility/LiquidityBasedEligbility.sol";
@@ -91,7 +92,7 @@ contract MockERC20 is IERC20 {
     }
 }
 
-contract TestHelper is Test {
+contract TestHelper is VTest {
     MockERC20 public token0;
     MockERC20 public token1;
     MockERC20 public rewardToken;

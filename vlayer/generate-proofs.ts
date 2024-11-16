@@ -96,7 +96,7 @@ async function submitProof(
   // Get deployed contract addresses
   const { averageBalanceAddress } = await getDeployedAddresses();
   // Get user address
-  const userAddress = process.env.USER_ADDRESS;
+  const userAddress = "0x1D96F2f6BeF1202E4Ce1Ff6Dad0c2CB002861d3e";
   // Get average balance from AverageBalance contract
   const averageBalance = await ethClient.readContract({
     address: averageBalanceAddress,
@@ -118,7 +118,7 @@ async function submitProof(
 
 async function main() {
   // Load environment variables
-  const userAddress = process.env.USER_ADDRESS;
+  const userAddress = "0x1D96F2f6BeF1202E4Ce1Ff6Dad0c2CB002861d3e";
   if (!userAddress) {
     throw new Error("USER_ADDRESS environment variable not set");
   }
