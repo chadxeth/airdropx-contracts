@@ -125,36 +125,8 @@ async function main() {
     const receipt = await wallet.sendTransaction(
       approvedTx
     )
-    console.log('Campaign created! Transaction:', receipt.hash);
+   console.log('Campaign created! Transaction:', receipt.hash);
 
-    // Get campaign ID from logs (you'd need to implement this based on your event structure)
-    const campaignId = 1n; // For testing purposes
-
-    // Try claiming reward
-    const claimTx = {
-      to: airdropManagerAddress,
-      from: account.address,
-      data: encodeFunctionData({
-        abi: AirdropManagerABI,
-        functionName: 'claimReward',
-        args: [campaignId]
-      }),
-      value: '0',
-      nonce: nonce
-    } 
-
-    // Get Venn approval for claim
-    console.log('Getting Venn approval for claim...');
-    const approvedClaimTx = await vennClient.approve(claimTx);
-    
-    // Send claim transaction
-    console.log('Sending approved claim transaction...');
-    const claimReceipt = await wallet.sendTransaction(approvedClaimTx);
-    console.log('Reward claimed! Transaction:', claimReceipt.hash);
-
-  } catch (error) {
-    console.error('Error:', error);
-  }
 }
 
 main().catch(console.error);

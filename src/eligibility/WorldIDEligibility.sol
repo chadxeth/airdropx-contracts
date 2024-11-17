@@ -73,6 +73,6 @@ contract WorldIDEligibility is ICriteriaLogic {
     }
 
     function recordInteraction(address user) external {
-        // No action needed as verification is handled separately
+        
     }
 }

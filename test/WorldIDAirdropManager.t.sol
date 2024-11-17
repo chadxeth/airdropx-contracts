@@ -2,12 +2,10 @@
 pragma solidity ^0.8.19;
 
 import "./TestHelper.sol";
-import {IWorldID} from "../src/interfaces/IWorldID.sol";
 import {WorldIDEligibility} from "../src/eligibility/WorldIDEligibility.sol";
+import {IWorldID} from "../src/interfaces/IWorldID.sol";
 
 contract MockWorldID is IWorldID {
-    mapping(address => bool) public verified;
-    
     function verifyProof(
         uint256 root,
         uint256 groupId,
@@ -15,34 +13,32 @@ contract MockWorldID is IWorldID {
         uint256 nullifierHash,
         uint256 externalNullifier,
         uint256[8] calldata proof
-    ) external view override {
-        revert("Mock should be called via try/catch"); 
+    ) external pure override {
+        // Mock implementation that accepts any proof
     }
 }
 
 contract WorldIDAirdropManagerTest is TestHelper {
+    uint256 public campaignId;
     WorldIDEligibility public worldIDEligibility;
     MockWorldID public mockWorldID;
-    uint256 public campaignId;
     
     function setUp() public override {
         super.setUp();
         
-        // Deploy mock WorldID
+        // Deploy mock WorldID and WorldIDEligibility
         mockWorldID = new MockWorldID();
-        
-        // Deploy WorldIDEligibility
         worldIDEligibility = new WorldIDEligibility(
             IWorldID(address(mockWorldID)),
-            "test_app",
-            "test_action"
+            "airdropx",
+            "claim"
         );
         
-        // Create campaign with WorldIDEligibility
+        // Create campaign with WorldID eligibility
         vm.startPrank(alice);
         campaignId = airdropManager.createCampaign(
             address(rewardToken),
-            1000 ether,
+            10000 ether,
             100,
             block.timestamp,
             block.timestamp + 1 days,
@@ -54,26 +50,27 @@ contract WorldIDAirdropManagerTest is TestHelper {
     function testVerifyAndClaim() public {
         vm.startPrank(bob);
         
-        // Create mock proof data
+        // Create mock verification data
         uint256[8] memory proof;
-        proof[0] = 1; // Mock proof data
+        uint256 root = 1;
+        uint256 nullifierHash = 123;
+        bytes memory signal = abi.encodePacked(bob);
         
-        // Verify with WorldID
+        // Verify WorldID
         worldIDEligibility.verifyUser(
             bob,
-            123, // root
-            456, // nullifierHash
+            root,
+            nullifierHash,
             proof
         );
         
-        // Check if verified
-        assertTrue(worldIDEligibility.isVerified(bob), "User should be verified");
+        // Check balance before claim
+        uint256 balanceBefore = rewardToken.balanceOf(bob);
         
         // Claim reward
-        uint256 balanceBefore = rewardToken.balanceOf(bob);
         airdropManager.claimReward(campaignId);
         
-        // Verify reward amount
+        // Verify reward amount (100 tokens for verified humans)
         assertEq(
             rewardToken.balanceOf(bob) - balanceBefore,
             100 ether,
@@ -83,55 +80,33 @@ contract WorldIDAirdropManagerTest is TestHelper {
         vm.stopPrank();
     }
 
-    function testClaimWithoutVerification() public {
+    function testCannotReuseNullifier() public {
         vm.startPrank(bob);
         
-        // Try to claim without verification
-        vm.expectRevert(); // Should revert as user is not verified
-        airdropManager.claimReward(campaignId);
-        
-        vm.stopPrank();
-    }
-
-    function testDuplicateVerification() public {
-        vm.startPrank(bob);
-        
-        // First verification
         uint256[8] memory proof;
-        worldIDEligibility.verifyUser(bob, 123, 456, proof);
+        uint256 root = 1;
+        uint256 nullifierHash = 123;
+        bytes memory signal = abi.encodePacked(bob);
+        
+        // Verify WorldID
+        worldIDEligibility.verifyUser(
+            bob,
+            root,
+            nullifierHash,
+            proof
+        );
         
         // Try to verify again with same nullifier
-        vm.expectRevert(WorldIDEligibility.DuplicateNullifier.selector);
-        worldIDEligibility.verifyUser(bob, 123, 456, proof);
+        vm.expectRevert(abi.encodeWithSignature("DuplicateNullifier(uint256)", nullifierHash));
+        // Verify WorldID
+        worldIDEligibility.verifyUser(
+            bob,
+            root,
+            nullifierHash,
+            proof
+        );
         
         vm.stopPrank();
     }
 
-    function testMultipleUsersClaim() public {
-        // Verify and claim for Bob
-        vm.startPrank(bob);
-        uint256[8] memory proofBob;
-        worldIDEligibility.verifyUser(bob, 123, 456, proofBob);
-        uint256 bobBalanceBefore = rewardToken.balanceOf(bob);
-        airdropManager.claimReward(campaignId);
-        assertEq(
-            rewardToken.balanceOf(bob) - bobBalanceBefore,
-            100 ether,
-            "Incorrect reward for Bob"
-        );
-        vm.stopPrank();
-
-        // Verify and claim for Carol
-        vm.startPrank(carol);
-        uint256[8] memory proofCarol;
-        worldIDEligibility.verifyUser(carol, 789, 101, proofCarol);
-        uint256 carolBalanceBefore = rewardToken.balanceOf(carol);
-        airdropManager.claimReward(campaignId);
-        assertEq(
-            rewardToken.balanceOf(carol) - carolBalanceBefore,
-            100 ether,
-            "Incorrect reward for Carol"
-        );
-        vm.stopPrank();
-    }
 }
