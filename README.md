@@ -32,6 +32,7 @@ graph TD
 | WETH (Test Token) | `0x4200000000000000000000000000000000000006` |
 | AverageBalance | `0x1824c0aee73934d0b4a64e6c634de729e9a99ec7` |
 | VLayerEligibility | `0xe29a139da1eec4f7dc0c08b7d54d72aabbd62313` |
+| WorldIDEligibility | `0xbbb73c4b8b99e1162ccc8d2941cecf1867337353` |
 
 > Note: These contracts are deployed on Base Sepolia testnet (Chain ID: 84532)
 

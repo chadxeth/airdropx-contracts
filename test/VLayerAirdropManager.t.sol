@@ -56,7 +56,7 @@ contract VLayerAirdropManagerTest is TestHelper {
         vm.startPrank(bob);
         callProver();
         // Then call the actual prover function which will be intercepted
-        (,, uint256 balance) = AverageBalance(averageBalance).averageBalanceOf(bob);
+        (,, uint256 balance) =averageBalance.averageBalanceOf(bob);
         
         // Get the proof from the previous call
         Proof memory proof = getProof();
@@ -107,7 +107,7 @@ contract VLayerAirdropManagerTest is TestHelper {
         vm.startPrank(bob);
         callProver();
         // Then call the actual prover function which will be intercepted
-        (,, uint256 balance) = AverageBalance(averageBalance).averageBalanceOf(bob);
+        (,, uint256 balance) = averageBalance.averageBalanceOf(bob);
         // Get the proof from the previous call
         Proof memory proof = getProof();
         vlayerEligibility.submitProof(proof, bob, 100 ether);
@@ -124,7 +124,7 @@ contract VLayerAirdropManagerTest is TestHelper {
         callProver();
     
     // Then call the actual prover function which will be intercepted
-        (,, uint256 balance2) = AverageBalance(averageBalance).averageBalanceOf(bob);
+        (,, uint256 balance2) = AverageBalance(averageBalance).averageBalanceOf(carol);
         
         // Get the proof from the previous call
         Proof memory proof2 = getProof();
