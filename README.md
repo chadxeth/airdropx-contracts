@@ -19,6 +19,21 @@ graph TD
     style A fill:#ff9900,stroke:#333,stroke-width:4px
     style C fill:#f9f,stroke:#333,stroke-width:2px
 ```
+## 🔗 Deployed Contracts (Base Sepolia)
+
+| Contract | Address | 
+|----------|---------|
+| AirdropManager | `0x3653Dcc8ACdfbCe9B156E5808C3eF383695ce720` |
+| LiquidityBasedEligibility | `0xBd79093aed8F8762c1Cc34Ca7451242d1B9eAFF5` |
+| TestProtocol | `0xa283f98380cf3a91836b408dbbaecf4d153a25ef` |
+| VennFirewallConsumer | `0x38a88b37c9357b11a1b405825935a53ab4cbdaeb` |
+| VennFirewall | `0x04f3B196E30e6F78174EF95a612E1f85A3B4110C` |
+| USDC (Test Token) | `0x5dEaC602762362FE5f135FA5904351916053cF70` |
+| WETH (Test Token) | `0x4200000000000000000000000000000000000006` |
+| AverageBalance | `0x1824c0aee73934d0b4a64e6c634de729e9a99ec7` |
+| VLayerEligibility | `0xe29a139da1eec4f7dc0c08b7d54d72aabbd62313` |
+
+> Note: These contracts are deployed on Base Sepolia testnet (Chain ID: 84532)
 
 ## 🔥 Key Features
 
